@@ -97,6 +97,7 @@
     padding:9px 14px;border-radius:999px;border:1.5px solid var(--sky-100);background:#fff;
   }
   @media (min-width:600px){ .header-tel{display:inline-flex} }
+  .header-tel svg{width:16px;height:16px;flex:none}
   .header-cta{
     display:inline-flex;align-items:center;justify-content:center;
     height:38px;padding:0 15px;border-radius:999px;
@@ -150,7 +151,9 @@
   .hero h1 .mark{
     background:linear-gradient(180deg,transparent 58%,rgba(26,167,236,.28) 58%);
     padding:0 2px;
+    white-space:nowrap;
   }
+  @media (max-width:400px){ .hero h1 .mark{white-space:normal} }
   .hero h1 em{font-style:normal;color:var(--blue)}
   .hero .lead{margin:14px 0 0;color:var(--ink-2);font-size:15.5px;max-width:33em}
   .hero .lead strong{color:var(--ink)}
