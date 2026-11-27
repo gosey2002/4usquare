@@ -410,6 +410,11 @@
   .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
   .form-status{grid-column:1/-1;display:none;font-size:13px;font-weight:700;color:#B3261E;background:#FFF3F2;border:1px solid #F7D2CE;border-radius:10px;padding:11px 12px;line-height:1.6}
   .form-status.is-visible{display:block}
+  .status-retry{
+    display:inline-flex;align-items:center;justify-content:center;margin-top:9px;
+    padding:9px 14px;border-radius:10px;border:1px solid #F0C4C0;background:#fff;
+    color:#B3261E;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;
+  }
   .form-actions{grid-column:1/-1}
   .form-foot{grid-column:1/-1;margin:0;font-size:11.5px;color:var(--muted);text-align:center}
   .form-done{display:none;text-align:center;padding:14px 4px 6px}
@@ -1448,6 +1453,7 @@
         '폼작성시간(초)': Math.round((Date.now() - startedAt) / 1000)
       };
 
+      /* 접수 지연·실패 시: 페이지를 벗어나지 않고 전화·카톡 안내 + 메일 접수 재시도 버튼 */
       function fail() {
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -1457,6 +1463,31 @@
           '<a href="tel:07089847400" style="color:inherit;text-decoration:underline">전화 ' + CONTACT_PHONE + '</a> · ' +
           '<a href="https://open.kakao.com/o/sJK0HSYi" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">카카오톡 상담</a> · ' +
           '<a href="mailto:' + SUBMIT_EMAIL + '" style="color:inherit;text-decoration:underline">' + SUBMIT_EMAIL + '</a>');
+        if (!statusEl) return;
+        var retry = document.createElement('button');
+        retry.type = 'button';
+        retry.className = 'status-retry';
+        retry.textContent = '그래도 신청서로 접수하기';
+        retry.addEventListener('click', function () { submitViaStandardForm(payload); });
+        statusEl.appendChild(retry);
+      }
+
+      /* 이메일 접수(일반 form POST) — AJAX가 막혀도 접수되도록 두는 예비 경로 */
+      function submitViaStandardForm(data) {
+        var f = document.createElement('form');
+        f.method = 'POST';
+        f.action = 'https://formsubmit.co/' + SUBMIT_EMAIL;
+        f.style.display = 'none';
+        data._next = window.location.href.split('?')[0].split('#')[0] + '?submitted=1#contact';
+        Object.keys(data).forEach(function (key) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = data[key] == null ? '' : String(data[key]);
+          f.appendChild(input);
+        });
+        document.body.appendChild(f);
+        f.submit();
       }
 
       if (submitBtn) {
